@@ -24,6 +24,8 @@ lerna-debug.log*
 # Python
 __pycache__/
 *.pyc
+Backend/venv/
+*.db
 
 # Uploads
 uploads/
