@@ -58,7 +58,7 @@ typing-inspection==0.4.4
 distro==1.9.0
 jiter==0.17.0
 requests==2.34.2
-tenacity==9.1.0
+tenacity==9.1.2
 
 # greenlet (SQLAlchemy async support)
 greenlet==3.5.6
