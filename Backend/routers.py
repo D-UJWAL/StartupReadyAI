@@ -1,3 +1,4 @@
+import shutil
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Form
 from fastapi.responses import JSONResponse, StreamingResponse
 from sqlalchemy.orm import Session
@@ -517,9 +518,12 @@ async def upload_document(
         raise HTTPException(status_code=400,
             detail=f"File type '{ext}' not allowed. Allowed: {', '.join(ALLOWED_EXTENSIONS)}")
 
-    # Read and validate size
-    contents = await file.read()
-    if len(contents) > MAX_FILE_SIZE:
+    # Read and validate size safely using seek
+    await file.seek(0, 2) # Seek to end
+    file_size = file.file.tell()
+    await file.seek(0) # Reset file pointer before saving
+    
+    if file_size > MAX_FILE_SIZE:
         raise HTTPException(status_code=400,
             detail=f"File too large. Maximum size is {MAX_FILE_SIZE // (1024*1024)} MB")
 
@@ -529,7 +533,7 @@ async def upload_document(
     file_path = os.path.join(UPLOADS_DIR, stored_filename)
 
     with open(file_path, "wb") as f:
-        f.write(contents)
+        shutil.copyfileobj(file.file, f)
 
     file_url = f"/files/{stored_filename}"
 

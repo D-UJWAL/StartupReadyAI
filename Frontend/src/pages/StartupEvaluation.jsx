@@ -639,13 +639,25 @@ export default function StartupEvaluation() {
   // ── File upload (reuses existing /api/uploads endpoint) ─────────────────
   const handleFileUpload = async (docKey, file) => {
     if (!file) return;
+
+      // Frontend validation
+      if (file.size > 15 * 1024 * 1024) {
+          setError('File too large. Maximum size is 15 MB.');
+          return;
+      }
+      const allowedExtensions = ['.pdf', '.docx', '.pptx', '.xlsx', '.png', '.jpg', '.jpeg', '.mp4'];
+      const ext = file.name.substring(file.name.lastIndexOf('.')).toLowerCase();
+      if (!allowedExtensions.includes(ext)) {
+          setError(`File type '${ext}' not allowed.`);
+          return;
+      }
     setUploadingKey(docKey);
     setError('');
     try {
       const fd = new FormData();
       fd.append('file', file);
       fd.append('doc_type', docKey);
-      const res = await api.post('/api/uploads', fd, { headers: { 'Content-Type': 'multipart/form-data' } });
+      const res = await api.post('/api/uploads', fd);
       setUploads(prev => ({ ...prev, [docKey]: res.data }));
       setSuccessMsg('File uploaded ✓');
       setTimeout(() => setSuccessMsg(''), 3000);
