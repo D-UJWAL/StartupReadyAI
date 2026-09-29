@@ -21,9 +21,12 @@ SQLALCHEMY_DATABASE_URL = (
     f"mysql+pymysql://{DB_USER}:{encoded_password}"
     f"@{DB_HOST}:{DB_PORT}/{DB_NAME}"
 )
-
-engine = create_engine(SQLALCHEMY_DATABASE_URL)
-
+engine = create_engine(
+    SQLALCHEMY_DATABASE_URL,
+    pool_pre_ping=True,
+    pool_recycle=300,
+    pool_timeout=30
+)
 SessionLocal = sessionmaker(
     autocommit=False,
     autoflush=False,
